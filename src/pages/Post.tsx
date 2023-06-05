@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { deletePostById, getPostById } from '../api';
 import { IAdvertisement, IPost } from '../api/types';
@@ -61,10 +61,60 @@ const Text = styled.p`
 
 const Post = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const { postId } = params;
+  const [ post, setPost ] = useState<IPost | null>(null);
 
-  // todo (4) post 컴포넌트 작성
-  return <div style={{ margin: '5.5rem auto', width: '700px' }}>나는 포스트</div>;
+  const fetchPostById = async () => {
+    const { data } = await getPostById(Number(postId));
+    setPost(data.post);
+  };
+
+  console.log(postId);
+  
+  const clickDeleteButton = () => {
+    const result = window.confirm('정말로 게시글을 삭제하시겠습니까?');
+    if (result) {
+      requestDeletePostById();
+    }
+  }
+
+  const requestDeletePostById = async () => {
+    await deletePostById(Number(postId));
+    navigate('/');
+  }
+
+  return (
+    <div style={{ margin: '5.5rem auto', width: '700px' }}>
+      <div>
+        <Title>{post?.title}</Title>
+        <Toolbar>
+          <Info>
+            <div>n분전</div>
+          </Info>
+          <div>
+            <Link to ="/write" state={{postId}} style={{marginRight: 10}}>
+              <TextButton>수정</TextButton>
+            </Link>
+            <TextButton onClick={clickDeleteButton}>삭제</TextButton>
+          </div>
+        </Toolbar>
+        {post?.tag && (
+          <TagWrapper>
+            <Tag>#{post?.tag}</Tag>
+          </TagWrapper>
+        )}
+      </div>
+
+      <ContentsArea>
+        <Text>
+          {post?.contents?.split('\n').map((text, index) => (
+            <Text key={index}>{text}</Text>
+          ))}
+        </Text>
+      </ContentsArea>
+    </div>
+  );
 };
 
 export default Post;
