@@ -59,11 +59,11 @@ const Layout = () => {
     <div>
       <Profile>
         <div>
-          <ProfilePicture src="https://t1.daumcdn.net/cfile/tistory/99107A335C1EED5005" alt="프로필 사진" />
+          <ProfilePicture src="https://upload.wikimedia.org/wikipedia/ko/c/cd/Doraemon.PNG" alt="프로필 사진" />
         </div>
         <div>
-          <Name>제시</Name>
-          <Description>브롤스타즈~</Description>
+          <Name>진도라</Name>
+          <Description>안녕하세요! 충남대학교 임지은 입니다.</Description>
         </div>
       </Profile>
       <Nav>
