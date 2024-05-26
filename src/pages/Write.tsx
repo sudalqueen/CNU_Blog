@@ -1,8 +1,10 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { createPost, getPostById, updatePostById } from '../api';
 import { TAG } from '../api/types';
+import useCreatePost from '../queries/useCreatePost.ts';
+import useUpdatePostById from '../queries/useUpdatePostById.ts';
+import useGetPostById from '../queries/useGetPostById.ts';
 
 const TitleInput = styled.input`
   display: block;
@@ -88,6 +90,9 @@ const Write = () => {
   const { state } = useLocation();
   const isEdit = state?.postId;
   const navigate = useNavigate();
+  const { data: post, isSuccess: isSuccessFetchPost } = useGetPostById(state?.postId);
+  const { mutate: createPost } = useCreatePost();
+  const { mutate: updatePost } = useUpdatePostById();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -105,10 +110,6 @@ const Write = () => {
     setTag(event.target.value as TAG);
   };
 
-  const requestCreatePost = async () => {
-    await createPost(title, content, tag);
-  };
-
   const clickConfirm = () => {
     if (!title || !content) {
       alert('빈 값이 있습니다.');
@@ -116,29 +117,20 @@ const Write = () => {
     }
 
     if (isEdit) {
-      requestUpdatePost();
+      updatePost({ postId: state.postId, title, contents: content, tag });
     } else {
-      requestCreatePost();
+      createPost({ title, contents: content, tag });
     }
     navigate('/');
   };
 
-  const fetchPostById = async (postId: string) => {
-    const { data: post } = await getPostById(postId);
-    setTitle(post.title);
-    setContent(post.contents);
-    setTag(post.tag);
-  };
-
-  const requestUpdatePost = async () => {
-    await updatePostById(state.postId, title, content, tag);
-  };
-
   useEffect(() => {
-    if (isEdit) {
-      fetchPostById(state.postId);
+    if (isSuccessFetchPost) {
+      setTitle(post.title);
+      setContent(post.contents);
+      setTag(post.tag);
     }
-  }, []);
+  }, [isSuccessFetchPost]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

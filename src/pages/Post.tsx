@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { deletePostById, getPostById } from '../api';
-import { IPost } from '../api/types';
 import NotFound from '../components/NotFound';
 import Tag from '../components/Tag';
+import useGetPostById from '../queries/useGetPostById.ts';
+import useDeletePostById from '../queries/useDeletePostById.ts';
 
 const Title = styled.h1`
   font-size: 3rem;
@@ -60,35 +59,23 @@ const Text = styled.p`
 `;
 
 const Post = () => {
-  const navigate = useNavigate();
   const params = useParams();
   const { postId = '' } = params;
-  const [post, setPost] = useState<IPost | null>(null);
-
-  const fetchPostById = async (id: string) => {
-    const { data } = await getPostById(id);
-    setPost(data);
-  };
+  const { data: post, isError, isLoading } = useGetPostById(postId);
+  const { mutate: deletePost } = useDeletePostById();
 
   const clickDeleteButton = () => {
     const result = window.confirm('정말로 게시글을 삭제하시겠습니까?');
     if (result) {
-      requestDeletePostById();
+      deletePost({ postId });
     }
   };
 
-  const requestDeletePostById = async () => {
-    await deletePostById(postId);
-    navigate('/');
-  };
+  if (isLoading) {
+    return <div>...불러오는 중...</div>;
+  }
 
-  useEffect(() => {
-    if (postId) {
-      fetchPostById(postId);
-    }
-  }, []);
-
-  if (!post) {
+  if (!post || isError) {
     return <NotFound />;
   }
 
