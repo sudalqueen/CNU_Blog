@@ -63,7 +63,7 @@ const Layout = () => {
         </div>
         <div>
           <Name>제시</Name>
-          <Description>브롤스타즈~</Description>
+          <Description>브롤스타즈</Description>
         </div>
       </Profile>
       <Nav>
